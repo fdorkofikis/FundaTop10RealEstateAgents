@@ -1,4 +1,7 @@
 using Scalar.AspNetCore;
+using Service.Client;
+using Service.Config;
+using Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddSingleton<IFundaClient, FundaClient>();
+builder.Services.AddScoped<IRealEstateAgentsService, RealEstateAgentsService>();
+builder.Services.AddHttpClient();
+
+builder.Services.Configure<FundaPartnerApiConfig>(builder.Configuration.GetSection("FundaPartnerApi"));
 
 var app = builder.Build();
 
