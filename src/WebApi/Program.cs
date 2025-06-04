@@ -11,11 +11,16 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddSingleton<IFundaClient, FundaClient>();
-builder.Services.AddScoped<IRealEstateAgentsService, RealEstateAgentsService>();
 builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
 
 builder.Services.Configure<FundaPartnerApiConfig>(builder.Configuration.GetSection("FundaPartnerApi"));
+builder.Services.Configure<CacheConfig>(builder.Configuration.GetSection("Cache"));
+
+builder.Services.AddSingleton<IFundaClient, FundaClient>();
+
+builder.Services.AddScoped<IRealEstateAgentsService, RealEstateAgentsService>();
+builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
 
 var app = builder.Build();
 
