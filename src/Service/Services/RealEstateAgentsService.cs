@@ -1,6 +1,6 @@
 ﻿using Serilog;
 using Service.Client;
-using Service.Objects;
+using Service.Models;
 
 namespace Service.Services;
 

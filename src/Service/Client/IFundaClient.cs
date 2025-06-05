@@ -1,4 +1,4 @@
-﻿using Service.Objects;
+﻿using Service.Models;
 
 namespace Service.Client;
 

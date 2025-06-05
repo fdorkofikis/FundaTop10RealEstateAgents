@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Service.Config;
-using Service.Objects;
+using Service.Models;
 
 namespace Service.Services;
 

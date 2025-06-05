@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Service.Services;
+using WeApi.Mappers;
 
 namespace WeApi.Controllers;
 
@@ -18,13 +19,13 @@ public class RealEstateAgentsController : ControllerBase
     public async Task<IActionResult> GetTop10RealEstateAgentsAmsterdam(CancellationToken cancellationToken)
     {
         var result = await _realEstateAgentsService.GetTop10RealEstateAgents(["amsterdam"], cancellationToken);
-        return Ok(result);
+        return Ok(Top10RealEstateAgentDtoMapper.Map(result));
     }
     
     [HttpGet("/amsterdam/garden/top10")]
     public async Task<IActionResult> GetTop10RealEstateAgentsAmsterdamGarden(CancellationToken cancellationToken)
     {
         var result = await _realEstateAgentsService.GetTop10RealEstateAgents(["amsterdam", "tuin"], cancellationToken);
-        return Ok(result);
+        return Ok(Top10RealEstateAgentDtoMapper.Map(result));
     }
 }

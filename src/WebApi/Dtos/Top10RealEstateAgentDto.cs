@@ -1,6 +1,6 @@
-﻿namespace Service.Objects;
+﻿namespace WeApi.Dtos;
 
-public class Top10RealEstateAgent
+public class Top10RealEstateAgentDto
 {
     public required int Id { get; init; }
     public required string Name { get; init; }

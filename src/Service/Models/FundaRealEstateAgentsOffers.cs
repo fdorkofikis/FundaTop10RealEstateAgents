@@ -1,4 +1,4 @@
-﻿namespace Service.Objects;
+﻿namespace Service.Models;
 
 public class FundaRealEstateAgentsOffers
 {

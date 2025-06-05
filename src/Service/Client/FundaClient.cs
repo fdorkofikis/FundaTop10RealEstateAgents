@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using Serilog;
 using Service.Config;
-using Service.Objects;
+using Service.Models;
 
 namespace Service.Client;
 
