@@ -1,17 +1,17 @@
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using Service.Client;
 using Service.Config;
 using Service.Services;
+using WeApi.Handler;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddExceptionHandler<ExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddHttpClient();
 builder.Services.AddMemoryCache();
@@ -21,14 +21,14 @@ builder.Services.Configure<CacheConfig>(builder.Configuration.GetSection("Cache"
 
 builder.Services.AddSingleton<IFundaClient, FundaClient>();
 
+builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
 builder.Services.AddScoped<RealEstateAgentsService>();
 builder.Services.AddScoped<IRealEstateAgentsService>(sp =>
 {
-    var cache = sp.GetRequiredService<IMemoryCache>();
+    var cache = sp.GetRequiredService<ICacheService>();
     var realEstateAgentsService = sp.GetRequiredService<RealEstateAgentsService>();
-    var options = sp.GetRequiredService<IOptions<CacheConfig>>();
     
-    return new InMemoryCacheService(cache, realEstateAgentsService, options);
+    return new RealEstateAgentsCachedService(cache, realEstateAgentsService);
 });
 
 var app = builder.Build();
@@ -43,6 +43,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseExceptionHandler();
 
 app.MapControllers();
 

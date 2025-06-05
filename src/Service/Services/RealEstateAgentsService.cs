@@ -30,7 +30,7 @@ public class RealEstateAgentsService: IRealEstateAgentsService
         {
             if (i == 100)
             {
-                Log.Warning("Reached 100 pages, waiting to overwrite the timeout.");
+                Log.Warning("Reached 100 pages limit, waiting one minute to overwrite the timeout.");
                 await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
             }
             
