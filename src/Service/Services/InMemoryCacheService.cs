@@ -5,25 +5,33 @@ using Service.Models;
 
 namespace Service.Services;
 
-public class InMemoryCacheService: ICacheService
+public class InMemoryCacheService: IRealEstateAgentsService
 {
     private readonly IMemoryCache _cache;
+    private readonly IRealEstateAgentsService _realEstateAgentsService;
     private  readonly CacheConfig _options;
 
-    public InMemoryCacheService(IMemoryCache cache, IOptions<CacheConfig> options)
+    public InMemoryCacheService(IMemoryCache cache, IRealEstateAgentsService realEstateAgentsService, IOptions<CacheConfig> options)
     {
         _cache = cache;
+        _realEstateAgentsService = realEstateAgentsService;
         _options = options.Value;
     }
     
-    public IEnumerable<Top10RealEstateAgent>? GetTop10RealEstateAgents(string[] filterParam)
+    public async Task<IEnumerable<Top10RealEstateAgent>> GetTop10RealEstateAgents(string[] filterParam, CancellationToken cancellationToken)
     {
         var cacheKey = string.Join("_", filterParam);
-        
-        return _cache.TryGetValue(cacheKey, out IEnumerable<Top10RealEstateAgent>? agents) ? agents : null;
+
+        if (!_cache.TryGetValue(cacheKey, out IEnumerable<Top10RealEstateAgent>? agents))
+        {
+            agents = await _realEstateAgentsService.GetTop10RealEstateAgents(filterParam, cancellationToken);
+            SetTop10RealEstateAgents(filterParam, agents);
+        }
+
+        return agents;
     }
     
-    public void SetTop10RealEstateAgents(string[] filterParam, IEnumerable<Top10RealEstateAgent> agents)
+    private void SetTop10RealEstateAgents(string[] filterParam, IEnumerable<Top10RealEstateAgent> agents)
     {
         var cacheKey = string.Join("_", filterParam);
         

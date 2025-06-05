@@ -6,32 +6,16 @@ namespace Service.Services;
 
 public class RealEstateAgentsService: IRealEstateAgentsService
 {
-    private readonly ICacheService _cache;
     private readonly IFundaClient _client;
     
     private const string Type = "koop";
     
-    public RealEstateAgentsService(ICacheService cache, IFundaClient client)
+    public RealEstateAgentsService(IFundaClient client)
     {
-        _cache = cache;
         _client = client;
     }
-
-    public async Task<IEnumerable<Top10RealEstateAgent>> GetTop10RealEstateAgents(string[] filterParam,
-        CancellationToken cancellationToken)
-    {
-        IEnumerable<Top10RealEstateAgent>? agents = _cache.GetTop10RealEstateAgents(filterParam);
-        
-        if (agents is null)
-        {
-            agents = await GetTop10RealEstateAgentsInternal(filterParam, cancellationToken);
-            _cache.SetTop10RealEstateAgents(filterParam, agents);
-        }
-
-        return agents;
-    }
-
-    private async Task<IEnumerable<Top10RealEstateAgent>> GetTop10RealEstateAgentsInternal(string[] filterParam, CancellationToken cancellationToken)
+    
+    public async Task<IEnumerable<Top10RealEstateAgent>> GetTop10RealEstateAgents(string[] filterParam, CancellationToken cancellationToken)
     {
         FundaRealEstateAgentsOffers? response = await _client.GetFundaRealEstateAgentsOffers(Type, filterParam, cancellationToken: cancellationToken);
         if (response is null)
@@ -79,7 +63,6 @@ public class RealEstateAgentsService: IRealEstateAgentsService
                 TotalObjects = g.Count()
             })
             .OrderByDescending(m => m.TotalObjects)
-            .Take(10)
-            .ToList();
+            .Take(10);
     }
 }

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using Service.Client;
 using Service.Config;
@@ -19,8 +21,15 @@ builder.Services.Configure<CacheConfig>(builder.Configuration.GetSection("Cache"
 
 builder.Services.AddSingleton<IFundaClient, FundaClient>();
 
-builder.Services.AddScoped<IRealEstateAgentsService, RealEstateAgentsService>();
-builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
+builder.Services.AddScoped<RealEstateAgentsService>();
+builder.Services.AddScoped<IRealEstateAgentsService>(sp =>
+{
+    var cache = sp.GetRequiredService<IMemoryCache>();
+    var realEstateAgentsService = sp.GetRequiredService<RealEstateAgentsService>();
+    var options = sp.GetRequiredService<IOptions<CacheConfig>>();
+    
+    return new InMemoryCacheService(cache, realEstateAgentsService, options);
+});
 
 var app = builder.Build();
 
