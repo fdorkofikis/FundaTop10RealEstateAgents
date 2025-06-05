@@ -10,13 +10,13 @@ public class FundaClient : IFundaClient
 {
     private readonly HttpClient _httpClient;
     private readonly FundaPartnerApiConfig _options;
-    
+
     public FundaClient(HttpClient httpClient, IOptions<FundaPartnerApiConfig> options)
     {
         _httpClient = httpClient;
         _options = options.Value;
     }
-    
+
     public async Task<FundaRealEstateAgentsOffers?> GetFundaRealEstateAgentsOffers(string type, string[] filterParam, int page = 1, int pageSize = 25, CancellationToken cancellationToken = default)
     {
         try
@@ -25,23 +25,24 @@ public class FundaClient : IFundaClient
             Log.Verbose("Getting data from Funda API for page : {Page}", page);
 
             var response = await _httpClient.GetAsync(url, cancellationToken);
-            if (response.IsSuccessStatusCode)
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (!response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync(cancellationToken);
-                return JsonSerializer.Deserialize<FundaRealEstateAgentsOffers>(content);
+                Log.Error("Getting data from Funda API for Url : {Url}, returned StatusCode {StatusCode} and content {Content}", url, response.StatusCode, content);
             }
-            
-            Log.Error("Getting data from Funda API for page : {Page}, returned StatusCode {StatusCode}", page, response.StatusCode);
+
+            var fundaRealEstateAgentsOffers = JsonSerializer.Deserialize<FundaRealEstateAgentsOffers>(content);
+            Log.Verbose("Succesfully retrieved data from Funda API for page : {Page}", page);
+
+            return fundaRealEstateAgentsOffers;
         }
         catch (Exception e)
         {
             Log.Error(e, "Error fetching and deserializing data from Funda API.");
             return null;
         }
-        
-        return null;
     }
-    
+
     private string ComposeUrl(string type, string[] filterParam, int page, int pageSize)
     {
         var url = $"{_options.BaseUrl}/{_options.Key}/?type={type}";

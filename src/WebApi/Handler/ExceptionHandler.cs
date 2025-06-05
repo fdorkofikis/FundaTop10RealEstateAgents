@@ -15,7 +15,7 @@ public class ExceptionHandler : IExceptionHandler
             Status = StatusCodes.Status500InternalServerError,
             Title = "An unexpected error occurred."
         };
-        
+
         await httpContext.Response.WriteAsJsonAsync(details, cancellationToken);
 
         return true;

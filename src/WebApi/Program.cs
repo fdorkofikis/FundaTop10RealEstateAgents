@@ -27,7 +27,7 @@ builder.Services.AddScoped<IRealEstateAgentsService>(sp =>
 {
     var cache = sp.GetRequiredService<ICacheService>();
     var realEstateAgentsService = sp.GetRequiredService<RealEstateAgentsService>();
-    
+
     return new RealEstateAgentsCachedService(cache, realEstateAgentsService);
 });
 

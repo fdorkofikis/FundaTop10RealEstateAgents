@@ -14,14 +14,14 @@ public class RealEstateAgentsController : ControllerBase
     {
         _realEstateAgentsService = realEstateAgentsService;
     }
-    
+
     [HttpGet("/amsterdam/top10")]
     public async Task<IActionResult> GetTop10RealEstateAgentsAmsterdam(CancellationToken cancellationToken)
     {
         var result = await _realEstateAgentsService.GetTop10RealEstateAgents(["amsterdam"], cancellationToken);
         return Ok(Top10RealEstateAgentDtoMapper.Map(result));
     }
-    
+
     [HttpGet("/amsterdam/garden/top10")]
     public async Task<IActionResult> GetTop10RealEstateAgentsAmsterdamGarden(CancellationToken cancellationToken)
     {

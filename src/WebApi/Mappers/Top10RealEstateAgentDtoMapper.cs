@@ -14,7 +14,7 @@ public static class Top10RealEstateAgentDtoMapper
             TotalObjects = agent.TotalObjects
         };
     }
-    
+
     public static IEnumerable<Top10RealEstateAgentDto> Map(IEnumerable<Top10RealEstateAgent> agents)
     {
         return agents.Select(Map);

@@ -12,20 +12,20 @@ public class RealEstateAgentsServiceTests
     private readonly Fixture _fixture;
     private readonly Mock<IFundaClient> _fundaClientMock;
     private readonly IRealEstateAgentsService _realEstateAgentsService;
-    
+
     public RealEstateAgentsServiceTests()
     {
         _fixture = new Fixture();
         _fundaClientMock = new Mock<IFundaClient>();
-        
+
         _realEstateAgentsService = new RealEstateAgentsService(_fundaClientMock.Object);
     }
-    
+
     [Fact]
     public async Task GetTop10RealEstateAgents_FundaClientReturnsNull_ReturnEmptyList()
     {
         // Arrange
-        _fundaClientMock.Setup(s => s.GetFundaRealEstateAgentsOffers(It.IsAny<string>(),It.IsAny<string[]>(), It.IsAny<int>(),It.IsAny<int>(),It.IsAny<CancellationToken>()))
+        _fundaClientMock.Setup(s => s.GetFundaRealEstateAgentsOffers(It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => null)
             .Verifiable(Times.Once());
 
@@ -36,12 +36,12 @@ public class RealEstateAgentsServiceTests
         result.Should().NotBeNull();
         result.Count().Should().Be(0);
     }
-    
+
     [Fact]
     public async Task GetTop10RealEstateAgents_FundaRealEstateAgentsOffersHasNullObjects_ReturnEmptyList()
     {
         // Arrange
-        _fundaClientMock.Setup(s => s.GetFundaRealEstateAgentsOffers(It.IsAny<string>(),It.IsAny<string[]>(), It.IsAny<int>(),It.IsAny<int>(),It.IsAny<CancellationToken>()))
+        _fundaClientMock.Setup(s => s.GetFundaRealEstateAgentsOffers(It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FundaRealEstateAgentsOffers
             {
                 Objects = null,
@@ -55,7 +55,7 @@ public class RealEstateAgentsServiceTests
         result.Should().NotBeNull();
         result.Count().Should().Be(0);
     }
-    
+
     [Theory]
     [InlineData(1)]
     [InlineData(6)]
@@ -64,8 +64,8 @@ public class RealEstateAgentsServiceTests
     {
         // Arrange
         var fundaObjects = _fixture.CreateMany<FundaObject>(12).ToList();
-        
-        _fundaClientMock.Setup(s => s.GetFundaRealEstateAgentsOffers(It.IsAny<string>(),It.IsAny<string[]>(), It.IsAny<int>(),It.IsAny<int>(),It.IsAny<CancellationToken>()))
+
+        _fundaClientMock.Setup(s => s.GetFundaRealEstateAgentsOffers(It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FundaRealEstateAgentsOffers
             {
                 Objects = fundaObjects,
