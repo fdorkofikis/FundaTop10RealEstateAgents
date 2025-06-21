@@ -10,15 +10,17 @@ namespace Service.Tests;
 public class RealEstateAgentsServiceTests
 {
     private readonly Fixture _fixture;
+    private readonly Mock<ICacheService> _cacheServiceMock;
     private readonly Mock<IFundaClient> _fundaClientMock;
     private readonly IRealEstateAgentsService _realEstateAgentsService;
 
     public RealEstateAgentsServiceTests()
     {
         _fixture = new Fixture();
+        _cacheServiceMock = new Mock<ICacheService>();
         _fundaClientMock = new Mock<IFundaClient>();
 
-        _realEstateAgentsService = new RealEstateAgentsService(_fundaClientMock.Object);
+        _realEstateAgentsService = new RealEstateAgentsService(_cacheServiceMock.Object, _fundaClientMock.Object);
     }
 
     [Fact]
@@ -55,16 +57,19 @@ public class RealEstateAgentsServiceTests
         result.Should().NotBeNull();
         result.Count().Should().Be(0);
     }
-
+    
     [Theory]
     [InlineData(1)]
     [InlineData(6)]
     [InlineData(25)]
-    public async Task GetTop10RealEstateAgents_Success_Returns10Agents(int pages)
+    public async Task GetTop10RealEstateAgents_Success_Returns10Agents2(int pages)
     {
         // Arrange
         var fundaObjects = _fixture.CreateMany<FundaObject>(12).ToList();
 
+        _cacheServiceMock.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<IEnumerable<Top10RealEstateAgent>>>>()))
+            .Returns<string, Func<Task<IEnumerable<Top10RealEstateAgent>>>>((key, factory) => factory());
+        
         _fundaClientMock.Setup(s => s.GetFundaRealEstateAgentsOffers(It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FundaRealEstateAgentsOffers
             {

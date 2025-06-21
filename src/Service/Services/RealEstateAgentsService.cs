@@ -6,12 +6,14 @@ namespace Service.Services;
 
 public class RealEstateAgentsService : IRealEstateAgentsService
 {
+    private readonly ICacheService _cache;
     private readonly IFundaClient _client;
 
     private const string Type = "koop";
 
-    public RealEstateAgentsService(IFundaClient client)
+    public RealEstateAgentsService(ICacheService cache, IFundaClient client)
     {
+        _cache = cache;
         _client = client;
     }
 
@@ -19,6 +21,15 @@ public class RealEstateAgentsService : IRealEstateAgentsService
     {
         Log.Information("Getting top 10 real-estate-agents for {filterParam}", string.Join(", ", filterParam));
 
+        var cacheKey = string.Join("_", filterParam);
+
+        return await _cache.GetOrCreateAsync(cacheKey,
+            () => GetAllRealEstateAgentsObjects(filterParam, cancellationToken));
+        
+    }
+    
+    private async Task<IEnumerable<Top10RealEstateAgent>> GetAllRealEstateAgentsObjects(string[] filterParam, CancellationToken cancellationToken)
+    {
         FundaRealEstateAgentsOffers? response = await _client.GetFundaRealEstateAgentsOffers(Type, filterParam, cancellationToken: cancellationToken);
         if (response is null)
         {
@@ -26,7 +37,7 @@ public class RealEstateAgentsService : IRealEstateAgentsService
             return new List<Top10RealEstateAgent>();
         }
 
-        var fundaObjects = response.Objects;
+        List<FundaObject> fundaObjects = response.Objects;
         Log.Information("Found {objectCount}/{totalObjects} real-estate-agent objects.", fundaObjects.Count, response.TotaalAantalObjecten);
 
         for (int i = 2; i < response.Paging.AantalPaginas; i++)
@@ -42,19 +53,19 @@ public class RealEstateAgentsService : IRealEstateAgentsService
             if (response?.Objects is null)
             {
                 Log.Error("Failed to get objects for page {page}.", i);
-                return GetTop10RealEstateAgen(fundaObjects);
+                return GetTop10RealEstateAgents(fundaObjects);
             }
 
             fundaObjects.AddRange(response.Objects);
             Log.Information("Found {objectCount}/{totalObjects} real-estate-agent objects.", fundaObjects.Count, response.TotaalAantalObjecten);
         }
 
-        Log.Information("Succesfully retrieved {objectCount}/{totalObjects} real-estate-agent objects from {totalPages} pages.", fundaObjects.Count, response.TotaalAantalObjecten);
+        Log.Information("Successfully retrieved {objectCount}/{totalObjects} real-estate-agent objects from {totalPages} pages.", fundaObjects.Count, response.TotaalAantalObjecten);
 
-        return GetTop10RealEstateAgen(fundaObjects);
+        return GetTop10RealEstateAgents(fundaObjects);
     }
 
-    private static IEnumerable<Top10RealEstateAgent> GetTop10RealEstateAgen(List<FundaObject> fundaObjects)
+    private static IEnumerable<Top10RealEstateAgent> GetTop10RealEstateAgents(List<FundaObject> fundaObjects)
     {
         if (fundaObjects is null)
         {

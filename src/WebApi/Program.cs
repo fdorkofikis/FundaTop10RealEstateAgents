@@ -22,14 +22,7 @@ builder.Services.Configure<CacheConfig>(builder.Configuration.GetSection("Cache"
 builder.Services.AddSingleton<IFundaClient, FundaClient>();
 
 builder.Services.AddScoped<ICacheService, InMemoryCacheService>();
-builder.Services.AddScoped<RealEstateAgentsService>();
-builder.Services.AddScoped<IRealEstateAgentsService>(sp =>
-{
-    var cache = sp.GetRequiredService<ICacheService>();
-    var realEstateAgentsService = sp.GetRequiredService<RealEstateAgentsService>();
-
-    return new RealEstateAgentsCachedService(cache, realEstateAgentsService);
-});
+builder.Services.AddScoped<RealEstateAgentsService, RealEstateAgentsService>();
 
 var app = builder.Build();
 
